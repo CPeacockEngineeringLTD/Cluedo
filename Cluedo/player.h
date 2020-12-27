@@ -55,6 +55,8 @@ public:
 	void setNumberOfMoves(int a);
 	void setX(int a);
 	void setY(int a);
+	void setmapX(int a);
+	void setmapY(int a);
 	int getNumberOfMoves();
 	int getmapX();
 	int getmapY();

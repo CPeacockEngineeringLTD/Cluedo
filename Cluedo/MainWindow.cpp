@@ -100,7 +100,7 @@ void MainWindow::Update() {
 		DeleteObject(hb);
 		EndPaint(m_hwnd, &ps);
 		// Uncomment to see frame count.
-		//const std::wstring& str = std::to_wstring(playerIndex);
+		//const std::wstring& str = std::to_wstring(players[playerIndex].getX()) + L", " + std::to_wstring(players[playerIndex].getY());
 		const std::wstring& str = players[0].contents[playerIndex] + L"'s turn";
 		SetWindowTextW(m_hwnd, str.c_str());
 	}
@@ -121,7 +121,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 	if (pa[0].makeAccusation(a - 1 , b - 1 , c - 1)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
 		return true;
-	}/*experimental random rejection*/
+	}
 	srand(time(0));
 	int randOrder = (rand() % 6);
 	switch (randOrder) {
@@ -189,7 +189,7 @@ MainWindow::MainWindow() :
 	pFactory(nullptr), numberOfPlayers(2), chosenRoom(0), chosenSuspect(0), chosenWeapon(0), playerIndex(0){ }
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
-	int score;
+	int score, junkX, junkY;
 	switch (uMsg) {
 	case WM_COMMAND:// HANDLE 4&5 PLAYERS
 		switch (LOWORD(wParam)) {
@@ -264,8 +264,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		case 10:
 			chosenSuspect = 4;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker
-			(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
 			break;
 		case 11:
 			chosenSuspect = 5;			
@@ -332,13 +331,13 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'E') {
-				players[playerIndex].setX(players[playerIndex].getmapX() - 1);//replace with middle of room
+				players[playerIndex].setX(players[playerIndex].getmapX() - 2);
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 3 && players[playerIndex].getmapY() == 17) { players[playerIndex].location = chosenRoom = 9; }
-				if (players[playerIndex].getmapX() == 6 && players[playerIndex].getmapY() == 11) { players[playerIndex].location = chosenRoom = 5; }
-				if (players[playerIndex].getmapX() == 6 && players[playerIndex].getmapY() == 12) { players[playerIndex].location = chosenRoom = 5; }
-				if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 8; }
-				if (players[playerIndex].getmapX() == 10 && players[playerIndex].getmapY() == 20) { players[playerIndex].location = chosenRoom = 7; }
+				if (players[playerIndex].getmapX() == 2 && players[playerIndex].getmapY() == 17) { players[playerIndex].location = chosenRoom = 9; }
+				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 11) { players[playerIndex].location = chosenRoom = 5; }
+				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 12) { players[playerIndex].location = chosenRoom = 5; }
+				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 8; }
+				else if (players[playerIndex].getmapX() == 9 && players[playerIndex].getmapY() == 20) { players[playerIndex].location = chosenRoom = 7; }
 				Update();
 			}
 		}
@@ -354,14 +353,14 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'E') {
-				players[playerIndex].setX(players[playerIndex].getmapX() + 1);//replace with middle of room
+				players[playerIndex].setX(players[playerIndex].getmapX() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 12 && players[playerIndex].getmapY() == 22) { players[playerIndex].location = chosenRoom = 2; }
-				if (players[playerIndex].getmapX() == 17 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = 1; }
-				if (players[playerIndex].getmapX() == 17 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 1; }
-				if (players[playerIndex].getmapX() == 9 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 4; }
-				if (players[playerIndex].getmapX() == 20 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 3; }
-				if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 4) { players[playerIndex].location = chosenRoom = 6; }
+				if (players[playerIndex].getmapX() == 13 && players[playerIndex].getmapY() == 22) { players[playerIndex].location = chosenRoom = 2; }
+				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = 1; }
+				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 1; }
+				else if (players[playerIndex].getmapX() == 10 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 4; }
+				else if (players[playerIndex].getmapX() == 21 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 3; }
+				else if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 4) { players[playerIndex].location = chosenRoom = 6; }
 				Update();
 			}
 		}
@@ -377,11 +376,11 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'E') {
-				players[playerIndex].setY(players[playerIndex].getmapY() - 1);//replace with middle of room
+				players[playerIndex].setY(players[playerIndex].getmapY() - 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 15) { players[playerIndex].location = chosenRoom = 1; }
-				if (players[playerIndex].getmapX() == 12 && players[playerIndex].getmapY() == 7) { players[playerIndex].location = chosenRoom = 4; }
-				if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 5; }
+				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 1; }
+				else if (players[playerIndex].getmapX() == 12 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 4; }
+				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 13) { players[playerIndex].location = chosenRoom = 5; }
 				Update();
 			}
 		}
@@ -397,14 +396,222 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'E') {
-				players[playerIndex].setY(players[playerIndex].getmapY() + 1);//replace with middle of room
+				players[playerIndex].setY(players[playerIndex].getmapY() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 8) { players[playerIndex].location = chosenRoom = 1; }
-				if (players[playerIndex].getmapX() == 15 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 2; }
-				if (players[playerIndex].getmapX() == 8 && players[playerIndex].getmapY() == 17) { players[playerIndex].location = chosenRoom = 7; }
+				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = 1; }
+				else if (players[playerIndex].getmapX() == 15 && players[playerIndex].getmapY() == 19) { players[playerIndex].location = chosenRoom = 2; }
+				else if (players[playerIndex].getmapX() == 8 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 7; }
 				Update();
 			}
 		}
+		return 0;
+	case WM_LBUTTONDOWN:
+		// OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
+		switch (players[playerIndex].location) {
+		case 1:
+			if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 203 && GET_X_LPARAM(lParam)
+				< 500 && GET_Y_LPARAM(lParam) < 226 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
+				< 500 && GET_Y_LPARAM(lParam) < 443 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
+				< 431 && GET_Y_LPARAM(lParam) < 397 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
+				< 431 && GET_Y_LPARAM(lParam) < 282 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}
+			Update();
+			break;
+		case 2:// billiard room
+			if (GET_X_LPARAM(lParam) > 385 && GET_Y_LPARAM(lParam) > 433 && GET_X_LPARAM(lParam)
+				< 408 && GET_Y_LPARAM(lParam) < 456 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
+				< 316 && GET_Y_LPARAM(lParam) < 581 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}
+			Update();
+			break;
+		case 3:// conservatory
+			if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 455 && GET_X_LPARAM(lParam)
+				< 500 && GET_Y_LPARAM(lParam) < 470 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(132);
+				players[playerIndex].setmapY(180);
+				players[playerIndex].setNumberOfMoves(0);
+				players[playerIndex].location = chosenRoom = 8;
+			}
+			Update();
+			break;
+		case 4: // dining room
+			if (GET_X_LPARAM(lParam) > 315 && GET_Y_LPARAM(lParam) > 225 && GET_X_LPARAM(lParam)
+				< 340 && GET_Y_LPARAM(lParam) < 260 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
+				< 250 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}
+			Update();
+			break;
+		case 5:// hall
+			if (GET_X_LPARAM(lParam) > 130 && GET_Y_LPARAM(lParam) > 385 && GET_X_LPARAM(lParam)
+				< 160 && GET_Y_LPARAM(lParam) < 420 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
+				< 230 && GET_Y_LPARAM(lParam) < 440 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}
+			Update();
+			break;
+		case 6:// kitchen
+			if (GET_X_LPARAM(lParam) > 430 && GET_Y_LPARAM(lParam) > 130 && GET_X_LPARAM(lParam)
+				< 465 && GET_Y_LPARAM(lParam) < 165 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(86);
+				players[playerIndex].setmapY(433);
+				players[playerIndex].setNumberOfMoves(0);
+				players[playerIndex].location = chosenRoom = 9;
+			}
+			Update();
+			break;
+		case 7:// library
+			if (GET_X_LPARAM(lParam) > 290 && GET_Y_LPARAM(lParam) > 500 && GET_X_LPARAM(lParam)
+				< 330 && GET_Y_LPARAM(lParam) < 535 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 175 && GET_Y_LPARAM(lParam) > 175 && GET_X_LPARAM(lParam)
+				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}
+			Update();
+			break;
+		case 8:// lounge
+			if (GET_X_LPARAM(lParam) > 175 && GET_Y_LPARAM(lParam) > 175 && GET_X_LPARAM(lParam)
+				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(523);
+				players[playerIndex].setmapY(456);
+				players[playerIndex].setNumberOfMoves(0);
+				players[playerIndex].location = chosenRoom = 3;
+			}
+			Update();
+			break;
+		case 9:// study
+			if (GET_X_LPARAM(lParam) > 131 && GET_Y_LPARAM(lParam) > 430 && GET_X_LPARAM(lParam) 
+				< 159 && GET_Y_LPARAM(lParam) < 460 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
+				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
+				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
+				if (!players[playerIndex].getNumberOfMoves()) {
+					playerIndex++;
+					playerIndex %= 6;
+				}
+			}else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
+				players[playerIndex].setmapX(477);
+				players[playerIndex].setmapY(134);
+				players[playerIndex].setNumberOfMoves(0);
+				players[playerIndex].location = chosenRoom = 6;
+			}
+			Update();
+			break;
+		}
+		return 0;
+	case WM_LBUTTONUP:
+		//OnLButtonUp();
 		return 0;
 	case WM_CLOSE:
 		if (MessageBox(m_hwnd, L"Really quit?", L"Cluedo", MB_OKCANCEL) == IDOK) 

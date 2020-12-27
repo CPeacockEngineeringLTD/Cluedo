@@ -12,6 +12,14 @@ void player::setY(int a){
 	yPos = startingY + a * increment;
 }
 
+void player::setmapX(int a){
+	xPos = ((a - startingX) / increment) * increment + startingX;
+}
+
+void player::setmapY(int a){
+	yPos = ((a - startingY) / increment) * increment + startingY;
+}
+
 int player::getNumberOfMoves(){
     return numberOfMoves;
 }

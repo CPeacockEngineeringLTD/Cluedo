@@ -39,4 +39,6 @@ public:
 	void Update();
 	bool suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[], room ra[], weapon wa[]);
 	void playerReset();
+	void nextPlayer();
+	void gotoMouse(int x, int y);
 };

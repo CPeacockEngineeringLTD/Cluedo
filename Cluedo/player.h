@@ -15,6 +15,7 @@ class player{
 	int yPos;
 public:
 	int location = 0;
+	bool rolled = false;
 	std::wstring contents[6] = {
 		L"Professor Plum",
 		L"Mrs Peacock",

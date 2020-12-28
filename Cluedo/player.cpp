@@ -41,13 +41,16 @@ int player::getY(){
 }
 
 bool player::makeAccusation(int a, int b, int c) {
+	numberOfMoves = 0;
 	if (suspect::checkMurder(a) && room::checkMurder(b) && weapon::checkMurder(c)) return true;
 	else return false;
 }
 
 int player::rollDice() {
+	if(rolled)return 0;
 	srand(time(0));
 	int a = (rand() % 6) + 1;
 	setNumberOfMoves(a);
+	rolled = true;
 	return a;
 }

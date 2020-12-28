@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 
-
 constexpr unsigned long chromakey = 4281558681;
 template <typename T> void SafeRelease(T** ppT) {
 	if (*ppT) {
@@ -120,6 +119,9 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
 	if (pa[0].makeAccusation(a - 1 , b - 1 , c - 1)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
+		a = 0;
+		b = 0;
+		c = 0;
 		return true;
 	}
 	srand(time(0));
@@ -156,6 +158,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 		else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 		break;
 	}
+	players[playerIndex].rolled = false;
 	++playerIndex;
 	playerIndex %= numberOfPlayers;
 	a = 0;
@@ -165,7 +168,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 	return false;
 }
 
-void MainWindow::playerReset(){
+void MainWindow::playerReset(){ // puts players back in starting positions
 	players[0].setX(5);
 	players[0].setY(23);//plum
 	players[1].setX(18);
@@ -178,6 +181,24 @@ void MainWindow::playerReset(){
 	players[4].setY(7);//scarlett
 	players[5].setX(24);
 	players[5].setY(9);//white
+}
+
+void MainWindow::nextPlayer(){
+	if (!(players[playerIndex].getNumberOfMoves())) {
+		players[playerIndex].rolled = false;
+		playerIndex++;
+		playerIndex %= numberOfPlayers;
+		chosenRoom = 0;
+		chosenSuspect = 0;
+		chosenWeapon = 0;
+	}
+}
+
+void MainWindow::gotoMouse(int x, int y){
+	players[playerIndex].setmapX(x);
+	players[playerIndex].setmapY(y);
+	players[playerIndex].location = 0;
+	players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 }
 
 void MainWindow::Resize() {
@@ -319,15 +340,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		}
 		break;
 	case WM_KEYDOWN:// ALLOW SECRET PASSAGE
-		if (wParam == VK_LEFT){
+		if (wParam == VK_LEFT && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() - 1);
-				if (!(players[playerIndex].getNumberOfMoves())) {
-					playerIndex++;
-					playerIndex %= numberOfPlayers;
-				}
+				nextPlayer();
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'E') {
@@ -341,15 +359,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}
 		}
-		if (wParam == VK_RIGHT){
+		if (wParam == VK_RIGHT && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() + 1);
-				if (!(players[playerIndex].getNumberOfMoves())) {
-					playerIndex++;
-					playerIndex %= numberOfPlayers;
-				}
+				nextPlayer();
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'E') {
@@ -364,15 +379,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}
 		}
-		if (wParam == VK_UP){
+		if (wParam == VK_UP && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setY(players[playerIndex].getmapY() - 1);
-				if (!(players[playerIndex].getNumberOfMoves())) {
-					playerIndex++;
-					playerIndex %= numberOfPlayers;
-				}
+				nextPlayer();
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'E') {
@@ -384,15 +396,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 				Update();
 			}
 		}
-		if (wParam == VK_DOWN){
+		if (wParam == VK_DOWN && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setY(players[playerIndex].getmapY() + 1);
-				if (!(players[playerIndex].getNumberOfMoves())) {
-					playerIndex++;
-					playerIndex %= numberOfPlayers;
-				}
+				nextPlayer();
 				Update();
 			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'E') {
@@ -408,78 +417,43 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	case WM_LBUTTONDOWN:
 		// OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		switch (players[playerIndex].location) {
-		case 1:
+		case 1:// ballroom
 			if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 203 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 226 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 443 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 397 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 282 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}
 			Update();
 			break;
 		case 2:// billiard room
 			if (GET_X_LPARAM(lParam) > 385 && GET_Y_LPARAM(lParam) > 433 && GET_X_LPARAM(lParam)
 				< 408 && GET_Y_LPARAM(lParam) < 456 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
 				< 316 && GET_Y_LPARAM(lParam) < 581 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}
 			Update();
 			break;
 		case 3:// conservatory
 			if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 455 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 470 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(132);
 				players[playerIndex].setmapY(180);
@@ -491,57 +465,32 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		case 4: // dining room
 			if (GET_X_LPARAM(lParam) > 315 && GET_Y_LPARAM(lParam) > 225 && GET_X_LPARAM(lParam)
 				< 340 && GET_Y_LPARAM(lParam) < 260 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
 				< 250 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}
 			Update();
 			break;
 		case 5:// hall
 			if (GET_X_LPARAM(lParam) > 130 && GET_Y_LPARAM(lParam) > 385 && GET_X_LPARAM(lParam)
 				< 160 && GET_Y_LPARAM(lParam) < 420 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
 				< 230 && GET_Y_LPARAM(lParam) < 440 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}
 			Update();
 			break;
 		case 6:// kitchen
 			if (GET_X_LPARAM(lParam) > 430 && GET_Y_LPARAM(lParam) > 130 && GET_X_LPARAM(lParam)
 				< 465 && GET_Y_LPARAM(lParam) < 165 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(86);
 				players[playerIndex].setmapY(433);
@@ -551,37 +500,22 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			Update();
 			break;
 		case 7:// library
-			if (GET_X_LPARAM(lParam) > 290 && GET_Y_LPARAM(lParam) > 500 && GET_X_LPARAM(lParam)
-				< 330 && GET_Y_LPARAM(lParam) < 535 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
-			}else if (GET_X_LPARAM(lParam) > 175 && GET_Y_LPARAM(lParam) > 175 && GET_X_LPARAM(lParam)
-				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+			if (GET_X_LPARAM(lParam) > 292 && GET_Y_LPARAM(lParam) > 501 && GET_X_LPARAM(lParam)
+				< 316 && GET_Y_LPARAM(lParam) < 526 && players[playerIndex].getNumberOfMoves()) {
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
+			}else if (GET_X_LPARAM(lParam) > 223 && GET_Y_LPARAM(lParam) > 409 && GET_X_LPARAM(lParam)
+				< 248 && GET_Y_LPARAM(lParam) < 434 && players[playerIndex].getNumberOfMoves()) {
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}
 			Update();
 			break;
 		case 8:// lounge
 			if (GET_X_LPARAM(lParam) > 175 && GET_Y_LPARAM(lParam) > 175 && GET_X_LPARAM(lParam)
 				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(523);
 				players[playerIndex].setmapY(456);
@@ -593,13 +527,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		case 9:// study
 			if (GET_X_LPARAM(lParam) > 131 && GET_Y_LPARAM(lParam) > 430 && GET_X_LPARAM(lParam) 
 				< 159 && GET_Y_LPARAM(lParam) < 460 && players[playerIndex].getNumberOfMoves()) {
-				players[playerIndex].setmapX(GET_X_LPARAM(lParam));
-				players[playerIndex].setmapY(GET_Y_LPARAM(lParam));
-				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
-				if (!players[playerIndex].getNumberOfMoves()) {
-					playerIndex++;
-					playerIndex %= 6;
-				}
+				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+				nextPlayer();
 			}else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(477);
 				players[playerIndex].setmapY(134);

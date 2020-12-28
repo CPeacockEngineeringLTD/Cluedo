@@ -41,4 +41,5 @@ public:
 	void playerReset();
 	void nextPlayer();
 	void gotoMouse(int x, int y);
+	void begin();
 };

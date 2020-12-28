@@ -117,8 +117,9 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 	_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(ra[0].contents[b - 1].c_str()));
 	_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(wa[0].contents[c - 1].c_str()));
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
-	if (pa[0].makeAccusation(a - 1 , b - 1 , c - 1)) {
+	if (pa[playerIndex].makeAccusation(a - 1 , b - 1 , c - 1)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
+		pa[playerIndex].rolled = false;
 		a = 0;
 		b = 0;
 		c = 0;
@@ -201,6 +202,16 @@ void MainWindow::gotoMouse(int x, int y){
 	players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 }
 
+void MainWindow::begin(){
+	playerIndex = 0;
+	for (int i = 0; i < numberOfPlayers; i++)players[i].location = 0;
+	playerReset();
+	suspects[0].chooseMurder();
+	rooms[0].chooseMurder();
+	weapons[0].chooseMurder();
+	Update();
+}
+
 void MainWindow::Resize() {
 	GetClientRect(m_hwnd, &rc);
 	InvalidateRect(m_hwnd, nullptr, FALSE);
@@ -224,48 +235,23 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			break;
 		case 2:
 			numberOfPlayers = 2;
-			playerIndex = 0;
-			playerReset();
-			suspects[0].chooseMurder();
-			rooms[0].chooseMurder();
-			weapons[0].chooseMurder();
-			Update();
+			begin();
 			break;
 		case 3:
 			numberOfPlayers = 3;
-			playerIndex = 0;
-			playerReset();
-			suspects[0].chooseMurder();
-			rooms[0].chooseMurder();
-			weapons[0].chooseMurder();
-			Update();
+			begin();
 			break;
 		case 4:
 			numberOfPlayers = 4;
-			playerIndex = 0;
-			playerReset();
-			suspects[0].chooseMurder();
-			rooms[0].chooseMurder();
-			weapons[0].chooseMurder();
-			Update();
+			begin();
 			break;
 		case 5:
 			numberOfPlayers = 5;
-			playerIndex = 0;
-			playerReset();
-			suspects[0].chooseMurder();
-			rooms[0].chooseMurder();
-			weapons[0].chooseMurder();
-			Update();
+			begin();
 			break;
 		case 6:
 			numberOfPlayers = 6;
-			playerIndex = 0;
-			playerReset();
-			suspects[0].chooseMurder();
-			rooms[0].chooseMurder();
-			weapons[0].chooseMurder();
-			Update();
+			begin();
 			break;
 		case 7:
 			chosenSuspect = 1;

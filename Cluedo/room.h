@@ -1,22 +1,11 @@
 #pragma once
-#include "object.h"
 #include <string>
 #include <stdlib.h>
 #include <time.h>
 
-class room : public object{
+class room{
 public:
-    virtual void chooseMurder()override;
+    static std::wstring getContents(int a);
+    static void chooseMurder();
     static bool checkMurder(int a);
-	std::wstring contents[9] = {
-		L"Ball Room",
-		L"Billiard Room",
-		L"Conservatory",
-		L"Dining Room",
-		L"Hall",
-		L"Kitchen",
-		L"Library",
-		L"Lounge",
-		L"Study"
-	};
 };

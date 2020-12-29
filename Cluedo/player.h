@@ -7,16 +7,17 @@
 #include <string.h>
 
 class player{
+private:
 	int numberOfMoves;
-	const int startingX = 40;
-	const int startingY = 42;
-	const int increment = 23;
+	const int startingX = 40;//position in pixels of square with lowest pixel value in x
+	const int startingY = 42;//position in pixels of square with lowest pixel value in y
+	const int increment = 23;//square size in pixels
 	int xPos;
 	int yPos;
 public:
 	int location = 0;
 	bool rolled = false;
-	std::wstring contents[6] = {
+	std::wstring contents[6] = {// change if you want players to start in a different order
 		L"Professor Plum",
 		L"Mrs Peacock",
 		L"Colonel Mustard",
@@ -24,7 +25,7 @@ public:
 		L"Miss Scarlett",
 		L"Mrs White"
 	};
-	std::string map = 
+	std::string map = // Used to handle collisions and false moves
 		"XXXXXXXXXXXXXXXXXXXXXXXXXX"
 		"XLLLLLLXOXHHHHHHXOXSSSSSSX"
 		"XLLLLLLLOOHHHHHHOOSSSSSSSX"

@@ -98,7 +98,7 @@ void MainWindow::Update() {
 		DeleteObject(oldBitmap);
 		DeleteObject(hb);
 		EndPaint(m_hwnd, &ps);
-		// Uncomment to see frame count.
+		// Uncomment to see grid position
 		//const std::wstring& str = std::to_wstring(players[playerIndex].getX()) + L", " + std::to_wstring(players[playerIndex].getY());
 		const std::wstring& str = players[0].contents[playerIndex] + L"'s turn";
 		SetWindowTextW(m_hwnd, str.c_str());
@@ -107,17 +107,31 @@ void MainWindow::Update() {
 
 bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[], room ra[], weapon wa[]){
 	_TCHAR szBuffer[100];
-	_TCHAR szBuffera[100];
-	_TCHAR szBufferb[100];
-	_TCHAR szBufferc[100];
+	//_TCHAR szBuffera[100];
+	//_TCHAR szBufferb[100];
+	//_TCHAR szBufferc[100];
 
-	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(sa[0].contents[a - 1].c_str()), 
-		const_cast<wchar_t*>(ra[0].contents[b - 1].c_str()), const_cast<wchar_t*>(wa[0].contents[c - 1].c_str()));
-	_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(sa[0].contents[a - 1].c_str()));
-	_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(ra[0].contents[b - 1].c_str()));
-	_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(wa[0].contents[c - 1].c_str()));
+	// Each player's data gets sent to individual files
+	std::wofstream myfile; 
+	switch(playerIndex){
+	case 0:myfile.open("player1.txt", std::ios_base::app); break;
+	case 1:myfile.open("player2.txt", std::ios_base::app); break;
+	case 2:myfile.open("player3.txt", std::ios_base::app); break;
+	case 3:myfile.open("player4.txt", std::ios_base::app); break;
+	case 4:myfile.open("player5.txt", std::ios_base::app); break;
+	case 5:myfile.open("player6.txt", std::ios_base::app); break;
+	}
+
+	// Confirmation of accusation
+	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(a).c_str()), 
+		const_cast<wchar_t*>(room::getContents(b).c_str()), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
+	//_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(a).c_str()));
+	//_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(b).c_str()));
+	//_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
-	if (pa[playerIndex].makeAccusation(a - 1 , b - 1 , c - 1)) {
+
+	// If correctly guessed
+	if (pa[playerIndex].makeAccusation(a, b, c)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
 		pa[playerIndex].rolled = false;
 		a = 0;
@@ -125,38 +139,40 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 		c = 0;
 		return true;
 	}
+
+	// Randomises information given for wrong answer
 	srand(time(0));
-	int randOrder = (rand() % 6);
+	int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
 	switch (randOrder) {
 	case 0:
-		if (!(sa[0].checkMurder(a - 1))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else if (!(ra[0].checkMurder(b - 1))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-		else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+		if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+		else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+		else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 		break;
 	case 1:
-		if (!(sa[0].checkMurder(a - 1))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else if (!(wa[0].checkMurder(c - 1))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
-		else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+		if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+		else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+		else myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 		break;
 	case 2:
-		if (!(ra[0].checkMurder(b - 1))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-		else if (!(sa[0].checkMurder(a - 1))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+		if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+		else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+		else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
 		break;
 	case 3:
-		if (!(ra[0].checkMurder(b - 1))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-		else if (!(wa[0].checkMurder(c - 1))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+		if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+		else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+		else myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 		break;
 	case 4:
-		if (!(wa[0].checkMurder(c - 1))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else if (!(sa[0].checkMurder(a - 1))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK); 
-		else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+		if (!(weapon::checkMurder(c)))myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+		else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK); 
+		else myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
 		break;
 	case 5:
-		if (!(wa[0].checkMurder(c - 1))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else if (!(ra[0].checkMurder(b - 1))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-		else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+		if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+		else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+		else myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 		break;
 	}
 	players[playerIndex].rolled = false;
@@ -184,7 +200,7 @@ void MainWindow::playerReset(){ // puts players back in starting positions
 	players[5].setY(9);//white
 }
 
-void MainWindow::nextPlayer(){
+void MainWindow::nextPlayer(){// When players' turn is finished
 	if (!(players[playerIndex].getNumberOfMoves())) {
 		players[playerIndex].rolled = false;
 		playerIndex++;
@@ -195,24 +211,27 @@ void MainWindow::nextPlayer(){
 	}
 }
 
-void MainWindow::gotoMouse(int x, int y){
+void MainWindow::gotoMouse(int x, int y){// When leaving a room
 	players[playerIndex].setmapX(x);
 	players[playerIndex].setmapY(y);
 	players[playerIndex].location = 0;
 	players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 }
 
-void MainWindow::begin(){
+void MainWindow::begin(){// executed at the start of game
 	playerIndex = 0;
-	for (int i = 0; i < numberOfPlayers; i++)players[i].location = 0;
+	for (int i = 0; i < numberOfPlayers; i++) {
+		players[i].location = 0;
+		players[i].rolled = false;
+	}
 	playerReset();
-	suspects[0].chooseMurder();
-	rooms[0].chooseMurder();
-	weapons[0].chooseMurder();
+	suspect::chooseMurder();
+	room::chooseMurder();
+	weapon::chooseMurder();
 	Update();
 }
 
-void MainWindow::Resize() {
+void MainWindow::Resize() {// almost deprecated ignore
 	GetClientRect(m_hwnd, &rc);
 	InvalidateRect(m_hwnd, nullptr, FALSE);
 }
@@ -220,10 +239,10 @@ void MainWindow::Resize() {
 MainWindow::MainWindow() :
 	pFactory(nullptr), numberOfPlayers(2), chosenRoom(0), chosenSuspect(0), chosenWeapon(0), playerIndex(0){ }
 
-LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
+LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// Handles mouse and keyboard input
 	int score, junkX, junkY;
 	switch (uMsg) {
-	case WM_COMMAND:// HANDLE 4&5 PLAYERS
+	case WM_COMMAND:// Handles menu inputs
 		switch (LOWORD(wParam)) {
 		case 1:
 			if (!players[playerIndex].getNumberOfMoves()) {
@@ -313,19 +332,19 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
 			break;
-		case 19://not used in 2,3 & 6 player games
+		case 19://not to be used in 2,3 & 6 player games
 			chosenWeapon = 7;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
 			break;
-		case 20://not used in 2,3 & 6 player games
+		case 20://not to be used in 2,3 & 6 player games
 			chosenWeapon = 8;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
 			break;
 		}
 		break;
-	case WM_KEYDOWN:// ALLOW SECRET PASSAGE
+	case WM_KEYDOWN:// if keyboard is used
 		if (wParam == VK_LEFT && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'O') {
@@ -400,7 +419,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			}
 		}
 		return 0;
-	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDOWN: // Handles mouse input
 		// OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		switch (players[playerIndex].location) {
 		case 1:// ballroom
@@ -525,7 +544,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 			break;
 		}
 		return 0;
-	case WM_LBUTTONUP:
+	case WM_LBUTTONUP:// not used currently
 		//OnLButtonUp();
 		return 0;
 	case WM_CLOSE:

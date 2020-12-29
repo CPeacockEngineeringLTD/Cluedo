@@ -1,6 +1,21 @@
 #include "weapon.h"
 
-static int murderIndex;
+static int murderIndex;// if it's not static each player has a different solution
+
+const static std::wstring contents[8] = {// don't change you'll regret it
+	L"Candlestick",
+	L"Dagger",
+	L"Lead Pipe",
+	L"Revolver",
+	L"Rope",
+	L"Spanner",
+	L"Poison",
+	L"Axe"
+};
+
+std::wstring weapon::getContents(int a) {
+	return contents[a - 1];
+}
 
 void weapon::chooseMurder(){
 	srand(time(0));

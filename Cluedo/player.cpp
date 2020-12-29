@@ -42,14 +42,14 @@ int player::getY(){
 
 bool player::makeAccusation(int a, int b, int c) {
 	numberOfMoves = 0;
-	if (suspect::checkMurder(a) && room::checkMurder(b) && weapon::checkMurder(c)) return true;
+	if (suspect::checkMurder(a - 1) && room::checkMurder(b - 1) && weapon::checkMurder(c - 1)) return true;
 	else return false;
 }
 
 int player::rollDice() {
 	if(rolled)return 0;
 	srand(time(0));
-	int a = (rand() % 6) + 1;
+	int a = (rand() % 6) + 1;//6 possible dice values 1 is added so that 0 is never rolled except in error
 	setNumberOfMoves(a);
 	rolled = true;
 	return a;

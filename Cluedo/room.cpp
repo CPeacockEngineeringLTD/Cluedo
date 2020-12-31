@@ -15,7 +15,7 @@ const static std::wstring contents[9] = {// don't change you'll regret it
 };
 
 std::wstring room::getContents(int a){
-	return contents[a-1];
+	return contents[a];
 }
 
 void room::chooseMurder(){

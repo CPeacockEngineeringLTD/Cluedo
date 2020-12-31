@@ -42,7 +42,7 @@ int player::getY(){
 
 bool player::makeAccusation(int a, int b, int c) {
 	numberOfMoves = 0;
-	if (suspect::checkMurder(a - 1) && room::checkMurder(b - 1) && weapon::checkMurder(c - 1)) return true;
+	if (suspect::checkMurder(a) && room::checkMurder(b) && weapon::checkMurder(c)) return true;
 	else return false;
 }
 

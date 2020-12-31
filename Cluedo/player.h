@@ -8,12 +8,12 @@
 
 class player{
 private:
-	int numberOfMoves;
+	int numberOfMoves = 0;
 	const int startingX = 40;//position in pixels of square with lowest pixel value in x
 	const int startingY = 42;//position in pixels of square with lowest pixel value in y
 	const int increment = 23;//square size in pixels
-	int xPos;
-	int yPos;
+	int xPos = 0;
+	int yPos = 0;
 public:
 	int location = 0;
 	bool rolled = false;

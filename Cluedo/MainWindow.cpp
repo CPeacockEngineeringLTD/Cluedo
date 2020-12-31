@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 
-constexpr unsigned long chromakey = 4281558681;
 template <typename T> void SafeRelease(T** ppT) {
 	if (*ppT) {
 		(*ppT)->Release();
@@ -46,6 +45,9 @@ bool MainWindow::OnCreate() {
 	AppendMenuW(hWeapon, MF_STRING, 18, L"Spanner");
 	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, 19, L"Poison");
 	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, 20, L"Axe");
+	AppendMenuW(hMenu, MF_STRING, 21, L"Lite");
+	AppendMenuW(hMenu, MF_STRING, 22, L"Scratch");
+	AppendMenuW(hMenu, MF_STRING, 23, L"Full");
 	SetMenu(m_hwnd, hMenubar);
 	return true;
 }
@@ -105,11 +107,14 @@ void MainWindow::Update() {
 	}
 }
 
-bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[], room ra[], weapon wa[]){
+bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
+	a--;
+	b--;
+	c--;
 	_TCHAR szBuffer[100];
-	//_TCHAR szBuffera[100];
-	//_TCHAR szBufferb[100];
-	//_TCHAR szBufferc[100];
+	_TCHAR szBuffera[100];
+	_TCHAR szBufferb[100];
+	_TCHAR szBufferc[100];
 
 	// Each player's data gets sent to individual files
 	std::wofstream myfile; 
@@ -125,56 +130,98 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[
 	// Confirmation of accusation
 	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(a).c_str()), 
 		const_cast<wchar_t*>(room::getContents(b).c_str()), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
-	//_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(a).c_str()));
-	//_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(b).c_str()));
-	//_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
+
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
 
 	// If correctly guessed
 	if (pa[playerIndex].makeAccusation(a, b, c)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
-		pa[playerIndex].rolled = false;
+		pa[playerIndex].rolled = true;
 		a = 0;
 		b = 0;
 		c = 0;
+		numberOfPlayers = 0;
 		return true;
 	}
 
-	// Randomises information given for wrong answer
-	srand(time(0));
-	int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
-	switch (randOrder) {
-	case 0:
-		if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-		else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
-		break;
-	case 1:
-		if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
-		else myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-		break;
-	case 2:
-		if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-		else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		break;
-	case 3:
-		if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-		else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;//MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		break;
-	case 4:
-		if (!(weapon::checkMurder(c)))myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK); 
-		else myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-		break;
-	case 5:
-		if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl; //MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-		else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl; //MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-		else myfile << suspect::getContents(a) << " is not the murderer" << std::endl; //MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-		break;
-	}
+	if (bScratch) {
+		// Randomises information given for wrong answer
+		srand(time(0));
+		int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
+		switch (randOrder) {
+		case 0:
+			if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			break;
+		case 1:
+			if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			else myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			break;
+		case 2:
+			if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			break;
+		case 3:
+			if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			else myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			break;
+		case 4:
+			if (!(weapon::checkMurder(c)))myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			else myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			break;
+		case 5:
+			if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			else myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			break;
+		}
+	}else if (bLite) {
+		_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(a).c_str()));
+		_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(b).c_str()));
+		_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
+
+		// Randomises information given for wrong answer
+		srand(time(0));
+		int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
+		switch (randOrder) {
+		case 0:
+			if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			break;
+		case 1:
+			if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			break;
+		case 2:
+			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			break;
+		case 3:
+			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			break;
+		case 4:
+			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK); 
+			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+			break;
+		case 5:
+			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			break;
+		}
+	}else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
+
 	players[playerIndex].rolled = false;
 	++playerIndex;
 	playerIndex %= numberOfPlayers;
@@ -228,19 +275,54 @@ void MainWindow::begin(){// executed at the start of game
 	suspect::chooseMurder();
 	room::chooseMurder();
 	weapon::chooseMurder();
+	std::vector<int>cards;
+	if (!bLite && !bScratch) {
+		for (int i = 0; i < 6; i++) {
+			if (suspect::checkMurder(i))continue;
+			cards.push_back(i);
+		}
+		for (int i = 0; i < 9; i++) {
+			if (room::checkMurder(i))continue;
+			cards.push_back(i + 6);
+		}
+		for (int i = 0; i < 6; i++) {
+			if (weapon::checkMurder(i))continue;
+			cards.push_back(i + 15);
+		}
+		int numberOfCards = cards.size();
+		int cardsPerPlayer = cards.size() / numberOfPlayers;
+		unsigned num = std::chrono::system_clock::now().time_since_epoch().count();
+		std::shuffle(cards.begin(), cards.end(), std::default_random_engine(num));
+		std::wofstream myfile;
+		distributeCards(cards, cardsPerPlayer, "player1.txt");
+		distributeCards(cards, cardsPerPlayer, "player2.txt");
+		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player3.txt");
+		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player4.txt");
+		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player5.txt");
+		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player6.txt");
+	}
 	Update();
 }
 
-void MainWindow::Resize() {// almost deprecated ignore
-	GetClientRect(m_hwnd, &rc);
-	InvalidateRect(m_hwnd, nullptr, FALSE);
+void MainWindow::distributeCards(std::vector<int>& v, const int cardsPerPlayer, std::string file){
+	int numberOfCards = v.size();
+	std::wofstream myfile;
+	for (int i = v.size(); i > numberOfCards - cardsPerPlayer; i--) {
+		myfile.open(file, std::ios_base::app);
+		if (v[i - 1] < 6) myfile << suspect::getContents(v[i - 1]) << " is not the murderer" << std::endl;
+		else if (v[i - 1] < 15) myfile << room::getContents(v[i - 1] - 6) << " is not the murder location" << std::endl;
+		else myfile << weapon::getContents(v[i - 1] - 15) << " is not the murder weapon" << std::endl;
+		myfile.close();
+		v.pop_back();
+	}
 }
 
 MainWindow::MainWindow() :
-	pFactory(nullptr), numberOfPlayers(2), chosenRoom(0), chosenSuspect(0), chosenWeapon(0), playerIndex(0){ }
+	pFactory(nullptr), numberOfPlayers(0), chosenRoom(0), chosenSuspect(0), chosenWeapon(0), playerIndex(0),
+bScratch(false), bLite(false){ }
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// Handles mouse and keyboard input
-	int score, junkX, junkY;
+	int score;
 	switch (uMsg) {
 	case WM_COMMAND:// Handles menu inputs
 		switch (LOWORD(wParam)) {
@@ -275,76 +357,82 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 		case 7:
 			chosenSuspect = 1;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 8:
 			chosenSuspect = 2;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 9:
 			chosenSuspect = 3;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 10:
 			chosenSuspect = 4;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 11:
 			chosenSuspect = 5;			
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 12: 
 			chosenSuspect = 6;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 13:
 			chosenWeapon = 1;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 14:
 			chosenWeapon = 2;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 15:
 			chosenWeapon = 3;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 16:
 			chosenWeapon = 4;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 17:
 			chosenWeapon = 5;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 18:
 			chosenWeapon = 6;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 19://not to be used in 2,3 & 6 player games
 			chosenWeapon = 7;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 20://not to be used in 2,3 & 6 player games
 			chosenWeapon = 8;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
-				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players, suspects, rooms, weapons);
+				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
+		case 21:
+			bLite = true; bScratch = false; break;
+		case 22:
+			bLite = false; bScratch = true; break;
+		case 23:
+			bLite = false; bScratch = false; break;
 		}
 		break;
-	case WM_KEYDOWN:// if keyboard is used
+	case WM_KEYDOWN:// if keyboard is used. Map height is 26 hence the hardcoded value
 		if (wParam == VK_LEFT && !players[playerIndex].location){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'O') {
@@ -384,7 +472,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				Update();
 			}
 		}
-		if (wParam == VK_UP && !players[playerIndex].location){
+		if (wParam == VK_UP && !players[playerIndex].location && (players[playerIndex].getX() != 155 || players[playerIndex].getY() != 203)){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
@@ -401,7 +489,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				Update();
 			}
 		}
-		if (wParam == VK_DOWN && !players[playerIndex].location){
+		if (wParam == VK_DOWN && !players[playerIndex].location && (players[playerIndex].getX() != 500 || players[playerIndex].getY() != 433)
+			&& (players[playerIndex].getX() != 109 || players[playerIndex].getY() != 410)){
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
@@ -554,9 +643,6 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 	case WM_DESTROY:
 		SafeRelease(&pFactory);
 		PostQuitMessage(0);
-		return 0;
-	case WM_SIZE:
-		Resize();
 		return 0;
 	}
 	return DefWindowProc(m_hwnd, uMsg, wParam, lParam);

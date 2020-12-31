@@ -12,7 +12,7 @@ const static std::wstring contents[6] = {// don't change you'll regret it
 };
 
 std::wstring suspect::getContents(int a) {
-	return contents[a - 1];
+	return contents[a];
 }
 
 void suspect::chooseMurder(){

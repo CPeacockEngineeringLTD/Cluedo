@@ -2,13 +2,14 @@
 #include "Basewindow.h"
 #include "windowsx.h"
 #include <future>
-#include <chrono>
 #include <algorithm>
 #include <list>
 #include <tchar.h>
 #include <d2d1.h>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <random>
 #include "suspect.h"
 #include "player.h"
 #include "room.h"
@@ -20,12 +21,9 @@ class MainWindow : public Basewindow<MainWindow> {
 	ID2D1Factory* pFactory;
 	RECT rc{ 0,0,600,800 };
 	HRESULT CreateGraphicsResources();
-	void Resize();
 	int numberOfPlayers, chosenSuspect, chosenRoom, chosenWeapon, playerIndex;
+	bool bLite, bScratch;
 	player players[6];
-	suspect suspects[6];
-	room rooms[9];
-	weapon weapons[6];
 	HMENU hMenubar = CreateMenu();
 	HMENU hMenu = CreateMenu();
 	HMENU hAccuse = CreateMenu();
@@ -39,9 +37,10 @@ public:
 	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
 	bool OnCreate();
 	void Update();
-	bool suspectChecker(int& a, int& b, int& c, player pa[], suspect sa[], room ra[], weapon wa[]);
+	bool suspectChecker(int& a, int& b, int& c, player pa[]);
 	void playerReset();
 	void nextPlayer();
 	void gotoMouse(int x, int y);
 	void begin();
+	void distributeCards(std::vector<int>& v, const int cardsPerPlayer, std::string file);
 };

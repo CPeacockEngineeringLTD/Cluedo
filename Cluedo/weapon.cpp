@@ -14,12 +14,13 @@ const static std::wstring contents[8] = {// don't change you'll regret it
 };
 
 std::wstring weapon::getContents(int a) {
-	return contents[a - 1];
+	return contents[a];
 }
 
 void weapon::chooseMurder(){
 	srand(time(0));
-	murderIndex = rand() % 6;
+	int a = rand() % 9;
+	murderIndex = (a * 321133) % 6;
 }
 
 bool weapon::checkMurder(int a){

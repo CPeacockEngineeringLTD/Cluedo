@@ -56,7 +56,7 @@ void MainWindow::Update() {
 	InvalidateRect(m_hwnd, nullptr, FALSE);
 	HRESULT hr = CreateGraphicsResources();
 	if (SUCCEEDED(hr)) {
-		PAINTSTRUCT ps;		
+		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(m_hwnd, &ps);
 		HGDIOBJ oldBitmap;
 		HBITMAP hb = (HBITMAP)LoadImageW(nullptr, L"Cluedo.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -90,7 +90,7 @@ void MainWindow::Update() {
 		BitBlt(hdc, players[4].getX(), players[4].getY(), rc.right, rc.bottom, src, 0, 0, SRCCOPY);
 		DeleteObject(oldBitmap);
 		DeleteObject(hscarlett);
-		oldBitmap = SelectObject(src, hwhite); 
+		oldBitmap = SelectObject(src, hwhite);
 		BitBlt(hdc, players[5].getX(), players[5].getY(), rc.right, rc.bottom, src, 0, 0, SRCCOPY);
 		DeleteObject(oldBitmap);
 		DeleteObject(hwhite);
@@ -107,28 +107,14 @@ void MainWindow::Update() {
 	}
 }
 
-bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
+bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]) {
 	a--;
 	b--;
 	c--;
 	_TCHAR szBuffer[100];
-	_TCHAR szBuffera[100];
-	_TCHAR szBufferb[100];
-	_TCHAR szBufferc[100];
-
-	// Each player's data gets sent to individual files
-	std::wofstream myfile; 
-	switch(playerIndex){
-	case 0:myfile.open("player1.txt", std::ios_base::app); break;
-	case 1:myfile.open("player2.txt", std::ios_base::app); break;
-	case 2:myfile.open("player3.txt", std::ios_base::app); break;
-	case 3:myfile.open("player4.txt", std::ios_base::app); break;
-	case 4:myfile.open("player5.txt", std::ios_base::app); break;
-	case 5:myfile.open("player6.txt", std::ios_base::app); break;
-	}
 
 	// Confirmation of accusation
-	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(a).c_str()), 
+	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(a).c_str()),
 		const_cast<wchar_t*>(room::getContents(b).c_str()), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
 
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
@@ -145,6 +131,17 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
 	}
 
 	if (bScratch) {
+		// Each player's data gets sent to individual files
+		std::wofstream myfile;
+		switch (playerIndex) {
+		case 0:myfile.open("player1.txt", std::ios_base::app); break;
+		case 1:myfile.open("player2.txt", std::ios_base::app); break;
+		case 2:myfile.open("player3.txt", std::ios_base::app); break;
+		case 3:myfile.open("player4.txt", std::ios_base::app); break;
+		case 4:myfile.open("player5.txt", std::ios_base::app); break;
+		case 5:myfile.open("player6.txt", std::ios_base::app); break;
+		}
+
 		// Randomises information given for wrong answer
 		srand(time(0));
 		int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
@@ -180,7 +177,14 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
 			else myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
 			break;
 		}
-	}else if (bLite) {
+		myfile.close();
+
+	}
+	else if (bLite) {
+
+		_TCHAR szBuffera[100];
+		_TCHAR szBufferb[100];
+		_TCHAR szBufferc[100];
 		_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(a).c_str()));
 		_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(b).c_str()));
 		_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
@@ -202,25 +206,26 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
 		case 2:
 			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			break;
 		case 3:
-			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
-			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
+			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			break;
 		case 4:
-			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK); 
-			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			break;
 		case 5:
-			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK); 
-			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK); 
+			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			break;
 		}
-	}else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
+	}
+	else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
 
 	players[playerIndex].rolled = false;
 	++playerIndex;
@@ -232,7 +237,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]){
 	return false;
 }
 
-void MainWindow::playerReset(){ // puts players back in starting positions
+void MainWindow::playerReset() { // puts players back in starting positions
 	players[0].setX(5);
 	players[0].setY(23);//plum
 	players[1].setX(18);
@@ -247,7 +252,7 @@ void MainWindow::playerReset(){ // puts players back in starting positions
 	players[5].setY(9);//white
 }
 
-void MainWindow::nextPlayer(){// When players' turn is finished
+void MainWindow::nextPlayer() {// When players' turn is finished
 	if (!(players[playerIndex].getNumberOfMoves())) {
 		players[playerIndex].rolled = false;
 		playerIndex++;
@@ -258,14 +263,14 @@ void MainWindow::nextPlayer(){// When players' turn is finished
 	}
 }
 
-void MainWindow::gotoMouse(int x, int y){// When leaving a room
+void MainWindow::gotoMouse(int x, int y) {// When leaving a room
 	players[playerIndex].setmapX(x);
 	players[playerIndex].setmapY(y);
 	players[playerIndex].location = 0;
 	players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 }
 
-void MainWindow::begin(){// executed at the start of game
+void MainWindow::begin() {// executed at the start of game
 	playerIndex = 0;
 	for (int i = 0; i < numberOfPlayers; i++) {
 		players[i].location = 0;
@@ -304,7 +309,7 @@ void MainWindow::begin(){// executed at the start of game
 	Update();
 }
 
-void MainWindow::distributeCards(std::vector<int>& v, const int cardsPerPlayer, std::string file){
+void MainWindow::distributeCards(std::vector<int>& v, const int cardsPerPlayer, std::string file) {
 	int numberOfCards = v.size();
 	std::wofstream myfile;
 	for (int i = v.size(); i > numberOfCards - cardsPerPlayer; i--) {
@@ -314,12 +319,13 @@ void MainWindow::distributeCards(std::vector<int>& v, const int cardsPerPlayer, 
 		else myfile << weapon::getContents(v[i - 1] - 15) << " is not the murder weapon" << std::endl;
 		myfile.close();
 		v.pop_back();
+		if (!v.size())break;
 	}
 }
 
 MainWindow::MainWindow() :
 	pFactory(nullptr), numberOfPlayers(0), chosenRoom(0), chosenSuspect(0), chosenWeapon(0), playerIndex(0),
-bScratch(false), bLite(false){ }
+	bScratch(false), bLite(false) { }
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// Handles mouse and keyboard input
 	int score;
@@ -375,11 +381,11 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
 		case 11:
-			chosenSuspect = 5;			
+			chosenSuspect = 5;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 12: 
+		case 12:
 			chosenSuspect = 6;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
@@ -433,14 +439,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 		}
 		break;
 	case WM_KEYDOWN:// if keyboard is used. Map height is 26 hence the hardcoded value
-		if (wParam == VK_LEFT && !players[playerIndex].location){
+		if (wParam == VK_LEFT && !players[playerIndex].location) {
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() - 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
+			}
+			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() - 2);
 				players[playerIndex].setNumberOfMoves(0);
@@ -452,14 +459,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				Update();
 			}
 		}
-		if (wParam == VK_RIGHT && !players[playerIndex].location){
+		if (wParam == VK_RIGHT && !players[playerIndex].location) {
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() + 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
+			}
+			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -472,14 +480,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				Update();
 			}
 		}
-		if (wParam == VK_UP && !players[playerIndex].location && (players[playerIndex].getX() != 155 || players[playerIndex].getY() != 203)){
+		if (wParam == VK_UP && !players[playerIndex].location && (players[playerIndex].getX() != 155 || players[playerIndex].getY() != 203)) {
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setY(players[playerIndex].getmapY() - 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
+			}
+			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() - 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -490,14 +499,15 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 		}
 		if (wParam == VK_DOWN && !players[playerIndex].location && (players[playerIndex].getX() != 500 || players[playerIndex].getY() != 433)
-			&& (players[playerIndex].getX() != 109 || players[playerIndex].getY() != 410)){
+			&& (players[playerIndex].getX() != 109 || players[playerIndex].getY() != 410)) {
 			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setY(players[playerIndex].getmapY() + 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
+			}
+			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -516,15 +526,18 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 500 && GET_Y_LPARAM(lParam) < 226 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 443 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 397 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 282 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -536,7 +549,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 408 && GET_Y_LPARAM(lParam) < 456 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
 				< 316 && GET_Y_LPARAM(lParam) < 581 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -548,7 +562,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 500 && GET_Y_LPARAM(lParam) < 470 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
+			}
+			else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(132);
 				players[playerIndex].setmapY(180);
 				players[playerIndex].setNumberOfMoves(0);
@@ -561,7 +576,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 340 && GET_Y_LPARAM(lParam) < 260 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
 				< 250 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -573,7 +589,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 160 && GET_Y_LPARAM(lParam) < 420 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
 				< 230 && GET_Y_LPARAM(lParam) < 440 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -585,7 +602,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 465 && GET_Y_LPARAM(lParam) < 165 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
+			}
+			else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(86);
 				players[playerIndex].setmapY(433);
 				players[playerIndex].setNumberOfMoves(0);
@@ -598,7 +616,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 316 && GET_Y_LPARAM(lParam) < 526 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 223 && GET_Y_LPARAM(lParam) > 409 && GET_X_LPARAM(lParam)
+			}
+			else if (GET_X_LPARAM(lParam) > 223 && GET_Y_LPARAM(lParam) > 409 && GET_X_LPARAM(lParam)
 				< 248 && GET_Y_LPARAM(lParam) < 434 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -610,7 +629,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
+			}
+			else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(523);
 				players[playerIndex].setmapY(456);
 				players[playerIndex].setNumberOfMoves(0);
@@ -619,11 +639,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			Update();
 			break;
 		case 9:// study
-			if (GET_X_LPARAM(lParam) > 131 && GET_Y_LPARAM(lParam) > 430 && GET_X_LPARAM(lParam) 
+			if (GET_X_LPARAM(lParam) > 131 && GET_Y_LPARAM(lParam) > 430 && GET_X_LPARAM(lParam)
 				< 159 && GET_Y_LPARAM(lParam) < 460 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
+			}
+			else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(477);
 				players[playerIndex].setmapY(134);
 				players[playerIndex].setNumberOfMoves(0);
@@ -637,8 +658,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 		//OnLButtonUp();
 		return 0;
 	case WM_CLOSE:
-		if (MessageBox(m_hwnd, L"Really quit?", L"Cluedo", MB_OKCANCEL) == IDOK) 
-		DestroyWindow(m_hwnd);
+		if (MessageBox(m_hwnd, L"Really quit?", L"Cluedo", MB_OKCANCEL) == IDOK)
+			DestroyWindow(m_hwnd);
 		return 0;
 	case WM_DESTROY:
 		SafeRelease(&pFactory);

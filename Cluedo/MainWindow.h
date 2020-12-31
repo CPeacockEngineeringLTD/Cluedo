@@ -2,13 +2,13 @@
 #include "Basewindow.h"
 #include "windowsx.h"
 #include <future>
+#include <chrono>
 #include <algorithm>
 #include <list>
 #include <tchar.h>
 #include <d2d1.h>
 #include <fstream>
 #include <sstream>
-#include <vector>
 #include <random>
 #include "suspect.h"
 #include "player.h"
@@ -22,8 +22,11 @@ class MainWindow : public Basewindow<MainWindow> {
 	RECT rc{ 0,0,600,800 };
 	HRESULT CreateGraphicsResources();
 	int numberOfPlayers, chosenSuspect, chosenRoom, chosenWeapon, playerIndex;
-	bool bLite, bScratch;
+	bool bScratch, bLite;
 	player players[6];
+	suspect suspects[6];
+	room rooms[9];
+	weapon weapons[6];
 	HMENU hMenubar = CreateMenu();
 	HMENU hMenu = CreateMenu();
 	HMENU hAccuse = CreateMenu();

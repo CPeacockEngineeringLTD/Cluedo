@@ -24,9 +24,6 @@ class MainWindow : public Basewindow<MainWindow> {
 	int numberOfPlayers, chosenSuspect, chosenRoom, chosenWeapon, playerIndex;
 	bool bScratch, bLite;
 	player players[6];
-	suspect suspects[6];
-	room rooms[9];
-	weapon weapons[6];
 	HMENU hMenubar = CreateMenu();
 	HMENU hMenu = CreateMenu();
 	HMENU hAccuse = CreateMenu();
@@ -34,16 +31,16 @@ class MainWindow : public Basewindow<MainWindow> {
 	HMENU hSuspect = CreatePopupMenu();
 	HMENU hWeapon = CreatePopupMenu();
 	HMENU hPlayers = CreatePopupMenu();
-public:
-	MainWindow();
-	PCWSTR ClassName() const override{ return L"Circle Window Class"; }
-	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
-	bool OnCreate();
-	void Update();
 	bool suspectChecker(int& a, int& b, int& c, player pa[]);
 	void playerReset();
 	void nextPlayer();
 	void gotoMouse(int x, int y);
 	void begin();
 	void distributeCards(std::vector<int>& v, const int cardsPerPlayer, std::string file);
+public:
+	MainWindow();
+	PCWSTR ClassName() const override{ return L"Circle Window Class"; }
+	LRESULT HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) override;
+	bool OnCreate();
+	void Update();
 };

@@ -20,7 +20,7 @@ std::wstring weapon::getContents(int a) {
 void weapon::chooseMurder(){
 	srand(time(0));
 	int a = rand() % 9;
-	murderIndex = (a * 321133) % 6;
+	murderIndex = ((8 - a) * 321133) % 6;
 }
 
 bool weapon::checkMurder(int a){

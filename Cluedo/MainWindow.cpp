@@ -224,8 +224,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]) {
 			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			break;
 		}
-	}
-	else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
+	}else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
 
 	players[playerIndex].rolled = false;
 	++playerIndex;
@@ -430,12 +429,9 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 21:
-			bLite = true; bScratch = false; break;
-		case 22:
-			bLite = false; bScratch = true; break;
-		case 23:
-			bLite = false; bScratch = false; break;
+		case 21: bLite = true; bScratch = false; break;
+		case 22: bLite = false; bScratch = true; break;
+		case 23: bLite = false; bScratch = false; break;
 		}
 		break;
 	case WM_KEYDOWN:// if keyboard is used. Map height is 26 hence the hardcoded value
@@ -446,8 +442,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setX(players[playerIndex].getmapX() - 1);
 				nextPlayer();
 				Update();
-			}
-			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() - 2);
 				players[playerIndex].setNumberOfMoves(0);
@@ -466,8 +461,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setX(players[playerIndex].getmapX() + 1);
 				nextPlayer();
 				Update();
-			}
-			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -487,8 +481,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setY(players[playerIndex].getmapY() - 1);
 				nextPlayer();
 				Update();
-			}
-			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() - 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -506,8 +499,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setY(players[playerIndex].getmapY() + 1);
 				nextPlayer();
 				Update();
-			}
-			else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
@@ -519,25 +511,21 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 		}
 		return 0;
 	case WM_LBUTTONDOWN: // Handles mouse input
-		// OnLButtonDown(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam), (DWORD)wParam);
 		switch (players[playerIndex].location) {
 		case 1:// ballroom
 			if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 203 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 226 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 410 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 443 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 364 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 397 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 408 && GET_Y_LPARAM(lParam) > 249 && GET_X_LPARAM(lParam)
 				< 431 && GET_Y_LPARAM(lParam) < 282 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -549,8 +537,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 408 && GET_Y_LPARAM(lParam) < 456 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 293 && GET_Y_LPARAM(lParam) > 548 && GET_X_LPARAM(lParam)
 				< 316 && GET_Y_LPARAM(lParam) < 581 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -562,8 +549,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 500 && GET_Y_LPARAM(lParam) < 470 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
+			}else if (GET_X_LPARAM(lParam) < 155 && GET_Y_LPARAM(lParam) < 180 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(132);
 				players[playerIndex].setmapY(180);
 				players[playerIndex].setNumberOfMoves(0);
@@ -576,8 +562,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 340 && GET_Y_LPARAM(lParam) < 260 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 220 && GET_Y_LPARAM(lParam) > 180 && GET_X_LPARAM(lParam)
 				< 250 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -589,8 +574,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 160 && GET_Y_LPARAM(lParam) < 420 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 200 && GET_Y_LPARAM(lParam) > 290 && GET_X_LPARAM(lParam)
 				< 230 && GET_Y_LPARAM(lParam) < 440 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -602,8 +586,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 465 && GET_Y_LPARAM(lParam) < 165 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
+			}else if (GET_X_LPARAM(lParam) < 190 && GET_Y_LPARAM(lParam) > 400 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(86);
 				players[playerIndex].setmapY(433);
 				players[playerIndex].setNumberOfMoves(0);
@@ -616,8 +599,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 316 && GET_Y_LPARAM(lParam) < 526 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 223 && GET_Y_LPARAM(lParam) > 409 && GET_X_LPARAM(lParam)
+			}else if (GET_X_LPARAM(lParam) > 223 && GET_Y_LPARAM(lParam) > 409 && GET_X_LPARAM(lParam)
 				< 248 && GET_Y_LPARAM(lParam) < 434 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
@@ -629,8 +611,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
+			}else if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 435 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(523);
 				players[playerIndex].setmapY(456);
 				players[playerIndex].setNumberOfMoves(0);
@@ -643,8 +624,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				< 159 && GET_Y_LPARAM(lParam) < 460 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
 				nextPlayer();
-			}
-			else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
+			}else if (GET_X_LPARAM(lParam) > 425 && GET_Y_LPARAM(lParam) < 200 && players[playerIndex].getNumberOfMoves()) {
 				players[playerIndex].setmapX(477);
 				players[playerIndex].setmapY(134);
 				players[playerIndex].setNumberOfMoves(0);

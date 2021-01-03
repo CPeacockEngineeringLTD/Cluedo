@@ -70,6 +70,8 @@ void MainWindow::Update() {
 		oldBitmap = SelectObject(src, hb); // Inserting picture into our temp HDC
 		// Copy image from temp HDC to window
 		BitBlt(hdc, 0, 0, rc.right, rc.bottom, src, 0, 0, SRCCOPY);
+		DeleteObject(oldBitmap); 
+		DeleteObject(hb);
 		oldBitmap = SelectObject(src, hplum);
 		BitBlt(hdc, players[0].getX(), players[0].getY(), rc.right, rc.bottom, src, 0, 0, SRCCOPY);
 		DeleteObject(oldBitmap);
@@ -98,7 +100,6 @@ void MainWindow::Update() {
 		SelectObject(src, oldBitmap);
 		DeleteDC(src);
 		DeleteObject(oldBitmap);
-		DeleteObject(hb);
 		EndPaint(m_hwnd, &ps);
 		// Uncomment to see grid position
 		//const std::wstring& str = std::to_wstring(players[playerIndex].getX()) + L", " + std::to_wstring(players[playerIndex].getY());
@@ -179,8 +180,7 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]) {
 		}
 		myfile.close();
 
-	}
-	else if (bLite) {
+	}else if (bLite) {
 
 		_TCHAR szBuffera[100];
 		_TCHAR szBufferb[100];

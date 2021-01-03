@@ -3,6 +3,7 @@
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
 	MainWindow* win = new MainWindow();
 	if (!win->Create(L"Cluedo", WS_OVERLAPPEDWINDOW)) {
+		delete win;
 		return 0;
 	}
 	win->OnCreate();

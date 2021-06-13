@@ -1,9 +1,8 @@
 #include "MainWindow.h"
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
-	MainWindow* win = new MainWindow();
+	std::unique_ptr<MainWindow> win = std::make_unique<MainWindow>();
 	if (!win->Create(L"Cluedo", WS_OVERLAPPEDWINDOW)) {
-		delete win;
 		return 0;
 	}
 	win->OnCreate();
@@ -16,9 +15,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}else {		
-			//win->Update();
+			//win->Update();//If constantly refreshing image
 		}
 	}
-	delete win;
 	return 0;
 }

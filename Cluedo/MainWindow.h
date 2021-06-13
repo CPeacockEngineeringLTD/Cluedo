@@ -23,6 +23,14 @@ class MainWindow : public Basewindow<MainWindow> {
 	HRESULT CreateGraphicsResources();
 	int numberOfPlayers, chosenSuspect, chosenRoom, chosenWeapon, playerIndex;
 	bool bScratch, bLite;
+	enum cards{
+		MUSTARD = 7, GREEN, PEACOCK, PLUM, SCARLETT, WHITE,
+		CANDLESTICK, DAGGER, LEADPIPE, REVOLVER, ROPE, SPANNER, POISON, AXE,
+		LITE, SCRATCH, FULL
+	};
+	enum locations{
+		BALL=1, BILLIARD, CONSERVATORY, DINING, HALL, KITCHEN, LIBRARY, LOUNGE, STUDY
+	};
 	player players[6];
 	HMENU hMenubar = CreateMenu();
 	HMENU hMenu = CreateMenu();
@@ -31,7 +39,7 @@ class MainWindow : public Basewindow<MainWindow> {
 	HMENU hSuspect = CreatePopupMenu();
 	HMENU hWeapon = CreatePopupMenu();
 	HMENU hPlayers = CreatePopupMenu();
-	bool suspectChecker(int& a, int& b, int& c, player pa[]);
+	bool suspectChecker(int& suspect, int& room, int& weapon, player pa[]);
 	void playerReset();
 	void nextPlayer();
 	void gotoMouse(int x, int y);

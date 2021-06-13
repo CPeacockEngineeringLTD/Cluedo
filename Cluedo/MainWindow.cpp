@@ -13,12 +13,12 @@ HRESULT MainWindow::CreateGraphicsResources() {
 	return hr;
 }
 
-bool MainWindow::OnCreate() {
+bool MainWindow::OnCreate() {// Only happen after loading game
 	if (FAILED(D2D1CreateFactory(
 		D2D1_FACTORY_TYPE_SINGLE_THREADED, &pFactory))) {
 		return false;// -1; // Fail CreateWindowEx.
 	}
-	InvalidateRect(m_hwnd, nullptr, FALSE);
+	InvalidateRect(m_hwnd, nullptr, FALSE);// Populate Menus
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hMenu, L"File");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hAccuse, L"Accuse");
 	AppendMenuW(hMenubar, MF_POPUP, (UINT_PTR)hRoll, L"Roll Dice");
@@ -30,31 +30,33 @@ bool MainWindow::OnCreate() {
 	AppendMenuW(hPlayers, MF_STRING, 5, L"5 Players");
 	AppendMenuW(hPlayers, MF_STRING, 6, L"6 Players");
 	AppendMenuW(hAccuse, MF_POPUP, (UINT_PTR)hSuspect, L"Suspect");
-	AppendMenuW(hSuspect, MF_STRING, 7, L"Colonel Mustard");
-	AppendMenuW(hSuspect, MF_STRING, 8, L"Reverend Green");
-	AppendMenuW(hSuspect, MF_STRING, 9, L"Mrs Peacock");
-	AppendMenuW(hSuspect, MF_STRING, 10, L"Professor Plum");
-	AppendMenuW(hSuspect, MF_STRING, 11, L"Miss Scarlett");
-	AppendMenuW(hSuspect, MF_STRING, 12, L"Mrs White");
+	AppendMenuW(hSuspect, MF_STRING, MUSTARD, L"Colonel Mustard");
+	AppendMenuW(hSuspect, MF_STRING, GREEN, L"Reverend Green");
+	AppendMenuW(hSuspect, MF_STRING, PEACOCK, L"Mrs Peacock");
+	AppendMenuW(hSuspect, MF_STRING, PLUM, L"Professor Plum");
+	AppendMenuW(hSuspect, MF_STRING, SCARLETT, L"Miss Scarlett");
+	AppendMenuW(hSuspect, MF_STRING, WHITE, L"Mrs White");
 	AppendMenuW(hAccuse, MF_POPUP, (UINT_PTR)hWeapon, L"Weapon");
-	AppendMenuW(hWeapon, MF_STRING, 13, L"Candlestick");
-	AppendMenuW(hWeapon, MF_STRING, 14, L"Dagger");
-	AppendMenuW(hWeapon, MF_STRING, 15, L"Lead Pipe");
-	AppendMenuW(hWeapon, MF_STRING, 16, L"Revolver");
-	AppendMenuW(hWeapon, MF_STRING, 17, L"Rope");
-	AppendMenuW(hWeapon, MF_STRING, 18, L"Spanner");
-	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, 19, L"Poison");
-	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, 20, L"Axe");
-	AppendMenuW(hMenu, MF_STRING, 21, L"Lite");
-	AppendMenuW(hMenu, MF_STRING, 22, L"Scratch");
-	AppendMenuW(hMenu, MF_STRING, 23, L"Full");
+	AppendMenuW(hWeapon, MF_STRING, CANDLESTICK, L"Candlestick");
+	AppendMenuW(hWeapon, MF_STRING, DAGGER, L"Dagger");
+	AppendMenuW(hWeapon, MF_STRING, LEADPIPE, L"Lead Pipe");
+	AppendMenuW(hWeapon, MF_STRING, REVOLVER, L"Revolver");
+	AppendMenuW(hWeapon, MF_STRING, ROPE, L"Rope");
+	AppendMenuW(hWeapon, MF_STRING, SPANNER, L"Spanner");
+	// Only needed for 5 & 6 player games, not currently supported fully
+	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, POISON, L"Poison");
+	//if (numberOfPlayers == 4 || numberOfPlayers == 5)AppendMenuW(hSuspect, MF_STRING, AXE, L"Axe");
+	AppendMenuW(hMenu, MF_STRING, LITE, L"Lite");
+	AppendMenuW(hMenu, MF_STRING, SCRATCH, L"Scratch");
+	AppendMenuW(hMenu, MF_STRING, FULL, L"Full");
 	SetMenu(m_hwnd, hMenubar);
 	return true;
 }
 
-void MainWindow::Update() {
+void MainWindow::Update() {// happens every time anything changes
 	InvalidateRect(m_hwnd, nullptr, FALSE);
 	HRESULT hr = CreateGraphicsResources();
+	// Construct the screen with all the players drawn
 	if (SUCCEEDED(hr)) {
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(m_hwnd, &ps);
@@ -70,6 +72,7 @@ void MainWindow::Update() {
 		oldBitmap = SelectObject(src, hb); // Inserting picture into our temp HDC
 		// Copy image from temp HDC to window
 		BitBlt(hdc, 0, 0, rc.right, rc.bottom, src, 0, 0, SRCCOPY);
+		// Free memory taken up by all the bitmaps
 		DeleteObject(oldBitmap); 
 		DeleteObject(hb);
 		oldBitmap = SelectObject(src, hplum);
@@ -96,7 +99,7 @@ void MainWindow::Update() {
 		BitBlt(hdc, players[5].getX(), players[5].getY(), rc.right, rc.bottom, src, 0, 0, SRCCOPY);
 		DeleteObject(oldBitmap);
 		DeleteObject(hwhite);
-		// Inserting picture into our temp HDC
+		// Inserting final picture into our temp HDC
 		SelectObject(src, oldBitmap);
 		DeleteDC(src);
 		DeleteObject(oldBitmap);
@@ -108,25 +111,25 @@ void MainWindow::Update() {
 	}
 }
 
-bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]) {
-	a--;
-	b--;
-	c--;
+bool MainWindow::suspectChecker(int& suspect , int& room , int& weapon, player pa[]) {// check whether they are right and give information if not
+	suspect -=7;//enum offset from array index
+	room--;//enum offset array index
+	weapon -= 13;//enum offset array index
 	_TCHAR szBuffer[100];
 
 	// Confirmation of accusation
-	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(a).c_str()),
-		const_cast<wchar_t*>(room::getContents(b).c_str()), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
+	_stprintf_s(szBuffer, _T("You have accused %ws in the %ws with the %ws"), const_cast<wchar_t*>(suspect::getContents(suspect).c_str()),
+		const_cast<wchar_t*>(room::getContents(room).c_str()), const_cast<wchar_t*>(weapon::getContents(weapon).c_str()));
 
 	MessageBox(m_hwnd, szBuffer, _T("Accusation"), MB_OK);
 
 	// If correctly guessed
-	if (pa[playerIndex].makeAccusation(a, b, c)) {
+	if (pa[playerIndex].makeAccusation(suspect, room, weapon)) {
 		MessageBox(m_hwnd, L"You have won", _T("Winner"), MB_OK);
 		pa[playerIndex].rolled = true;
-		a = 0;
-		b = 0;
-		c = 0;
+		suspect = 0;
+		room = 0;
+		weapon = 0;
 		numberOfPlayers = 0;
 		return true;
 	}
@@ -148,90 +151,91 @@ bool MainWindow::suspectChecker(int& a, int& b, int& c, player pa[]) {
 		int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
 		switch (randOrder) {
 		case 0:
-			if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
-			else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
-			else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			if (!(suspect::checkMurder(suspect))) myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
+			else if (!(room::checkMurder(room))) myfile << room::getContents(room) << " is not the murder location" << std::endl;
+			else myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
 			break;
 		case 1:
-			if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
-			else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
-			else myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			if (!(suspect::checkMurder(suspect))) myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
+			else if (!(weapon::checkMurder(weapon))) myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
+			else myfile << room::getContents(room) << " is not the murder location" << std::endl;
 			break;
 		case 2:
-			if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
-			else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
-			else myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
+			if (!(room::checkMurder(room))) myfile << room::getContents(room) << " is not the murder location" << std::endl;
+			else if (!(suspect::checkMurder(suspect))) myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
+			else myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
 			break;
 		case 3:
-			if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
-			else if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
-			else myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			if (!(room::checkMurder(room))) myfile << room::getContents(room) << " is not the murder location" << std::endl;
+			else if (!(weapon::checkMurder(weapon))) myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
+			else myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
 			break;
 		case 4:
-			if (!(weapon::checkMurder(c)))myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
-			else if (!(suspect::checkMurder(a))) myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
-			else myfile << room::getContents(b) << " is not the murder location" << std::endl;
+			if (!(weapon::checkMurder(weapon)))myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
+			else if (!(suspect::checkMurder(suspect))) myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
+			else myfile << room::getContents(room) << " is not the murder location" << std::endl;
 			break;
 		case 5:
-			if (!(weapon::checkMurder(c))) myfile << weapon::getContents(c) << " is not the murder weapon" << std::endl;
-			else if (!(room::checkMurder(b))) myfile << room::getContents(b) << " is not the murder location" << std::endl;
-			else myfile << suspect::getContents(a) << " is not the murderer" << std::endl;
+			if (!(weapon::checkMurder(weapon))) myfile << weapon::getContents(weapon) << " is not the murder weapon" << std::endl;
+			else if (!(room::checkMurder(room))) myfile << room::getContents(room) << " is not the murder location" << std::endl;
+			else myfile << suspect::getContents(suspect) << " is not the murderer" << std::endl;
 			break;
 		}
 		myfile.close();
 
 	}else if (bLite) {
-
+		// Message box for outcome
 		_TCHAR szBuffera[100];
 		_TCHAR szBufferb[100];
 		_TCHAR szBufferc[100];
-		_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(a).c_str()));
-		_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(b).c_str()));
-		_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(c).c_str()));
+		_stprintf_s(szBuffera, _T("%ws is not the murderer"), const_cast<wchar_t*>(suspect::getContents(suspect).c_str()));
+		_stprintf_s(szBufferb, _T("%ws is not the murder location"), const_cast<wchar_t*>(room::getContents(room).c_str()));
+		_stprintf_s(szBufferc, _T("%ws is not the murder weapon"), const_cast<wchar_t*>(weapon::getContents(weapon).c_str()));
 
 		// Randomises information given for wrong answer
 		srand(time(0));
 		int randOrder = (rand() % 6);// 3! == 6 so there are 6 possibilities
 		switch (randOrder) {
 		case 0:
-			if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			if (!(suspect::checkMurder(suspect))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else if (!(room::checkMurder(room))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			break;
 		case 1:
-			if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
-			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			if (!(suspect::checkMurder(suspect))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			else if (!(weapon::checkMurder(weapon))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			break;
 		case 2:
-			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			if (!(room::checkMurder(room))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			else if (!(suspect::checkMurder(suspect))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			break;
 		case 3:
-			if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
-			else if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			if (!(room::checkMurder(room))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			else if (!(weapon::checkMurder(weapon))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			break;
 		case 4:
-			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
-			else if (!(suspect::checkMurder(a))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
+			if (!(weapon::checkMurder(weapon))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			else if (!(suspect::checkMurder(suspect))) MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			break;
 		case 5:
-			if (!(weapon::checkMurder(c))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
-			else if (!(room::checkMurder(b))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
+			if (!(weapon::checkMurder(weapon))) MessageBox(m_hwnd, szBufferc, _T("Not this Time"), MB_OK);
+			else if (!(room::checkMurder(room))) MessageBox(m_hwnd, szBufferb, _T("Not this Time"), MB_OK);
 			else MessageBox(m_hwnd, szBuffera, _T("Not this Time"), MB_OK);
 			break;
 		}
 	}else MessageBox(m_hwnd, L"One of your fellow players has that information.\nUnless of course you are bluffing:D", L"Not this Time", MB_OK);
-
+	
+	//reset everything
 	players[playerIndex].rolled = false;
 	++playerIndex;
 	playerIndex %= numberOfPlayers;
-	a = 0;
-	b = 0;
-	c = 0;
+	suspect = 0;
+	room = 0;
+	weapon = 0;
 	Update();
 	return false;
 }
@@ -282,15 +286,15 @@ void MainWindow::begin() {// executed at the start of game
 	std::vector<int>cards;
 	if (!bLite && !bScratch) {
 		for (int i = 0; i < 6; i++) {
-			if (suspect::checkMurder(i))continue;
+			if (suspect::checkMurder(i))continue;// don't distribute murder cards to players
 			cards.push_back(i);
 		}
 		for (int i = 0; i < 9; i++) {
-			if (room::checkMurder(i))continue;
+			if (room::checkMurder(i))continue;// don't distribute murder cards to players
 			cards.push_back(i + 6);
 		}
 		for (int i = 0; i < 6; i++) {
-			if (weapon::checkMurder(i))continue;
+			if (weapon::checkMurder(i))continue;// don't distribute murder cards to players
 			cards.push_back(i + 15);
 		}
 		int numberOfCards = cards.size();
@@ -298,6 +302,7 @@ void MainWindow::begin() {// executed at the start of game
 		unsigned num = std::chrono::system_clock::now().time_since_epoch().count();
 		std::shuffle(cards.begin(), cards.end(), std::default_random_engine(num));
 		std::wofstream myfile;
+		// add the randomly selected cards tp the players sheets
 		distributeCards(cards, cardsPerPlayer, "player1.txt");
 		distributeCards(cards, cardsPerPlayer, "player2.txt");
 		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player3.txt");
@@ -318,7 +323,7 @@ void MainWindow::distributeCards(std::vector<int>& v, const int cardsPerPlayer, 
 		else myfile << weapon::getContents(v[i - 1] - 15) << " is not the murder weapon" << std::endl;
 		myfile.close();
 		v.pop_back();
-		if (!v.size())break;
+		if (!v.size())break; //exit if no cards are left
 	}
 }
 
@@ -328,10 +333,11 @@ MainWindow::MainWindow() :
 
 LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// Handles mouse and keyboard input
 	int score;
+	constexpr auto mapHeight = 26;
 	switch (uMsg) {
 	case WM_COMMAND:// Handles menu inputs
 		switch (LOWORD(wParam)) {
-		case 1:
+		case 1:// dice roll
 			if (!players[playerIndex].getNumberOfMoves()) {
 				score = players[playerIndex].rollDice();
 				_TCHAR szBuffer[100];
@@ -359,135 +365,135 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			numberOfPlayers = 6;
 			begin();
 			break;
-		case 7:
-			chosenSuspect = 1;
+		case MUSTARD:
+			chosenSuspect = MUSTARD;//enum to array position
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 8:
-			chosenSuspect = 2;
+		case GREEN:
+			chosenSuspect = GREEN;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 9:
-			chosenSuspect = 3;
+		case PEACOCK:
+			chosenSuspect = PEACOCK;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 10:
-			chosenSuspect = 4;
+		case PLUM:
+			chosenSuspect = PLUM;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 11:
-			chosenSuspect = 5;
+		case SCARLETT:
+			chosenSuspect = SCARLETT;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 12:
-			chosenSuspect = 6;
+		case WHITE:
+			chosenSuspect = WHITE;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 13:
-			chosenWeapon = 1;
+		case CANDLESTICK:
+			chosenWeapon = CANDLESTICK;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 14:
-			chosenWeapon = 2;
+		case DAGGER:
+			chosenWeapon = DAGGER;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 15:
-			chosenWeapon = 3;
+		case LEADPIPE:
+			chosenWeapon = LEADPIPE;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 16:
-			chosenWeapon = 4;
+		case REVOLVER:
+			chosenWeapon = REVOLVER;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 17:
-			chosenWeapon = 5;
+		case ROPE:
+			chosenWeapon = ROPE;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 18:
-			chosenWeapon = 6;
+		case SPANNER:
+			chosenWeapon = SPANNER;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 19://not to be used in 2,3 & 6 player games
-			chosenWeapon = 7;
+		case POISON://not to be used in 2,3 & 6 player games
+			chosenWeapon = POISON;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 20://not to be used in 2,3 & 6 player games
-			chosenWeapon = 8;
+		case AXE://not to be used in 2,3 & 6 player games
+			chosenWeapon = AXE;
 			if (chosenSuspect && chosenRoom && chosenWeapon)
 				suspectChecker(chosenSuspect, chosenRoom, chosenWeapon, players);
 			break;
-		case 21: bLite = true; bScratch = false; break;
-		case 22: bLite = false; bScratch = true; break;
-		case 23: bLite = false; bScratch = false; break;
+		case LITE: bLite = true; bScratch = false; break;
+		case SCRATCH: bLite = false; bScratch = true; break;
+		case FULL: bLite = false; bScratch = false; break;
 		}
 		break;
-	case WM_KEYDOWN:// if keyboard is used. Map height is 26 hence the hardcoded value
+	case WM_KEYDOWN:// When pressing the arrow keys. Handles incorrect entrances
 		if (wParam == VK_LEFT && !players[playerIndex].location) {
-			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
+			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() - 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX())
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX())
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() - 2);
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 2 && players[playerIndex].getmapY() == 17) { players[playerIndex].location = chosenRoom = 9; }
-				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 11) { players[playerIndex].location = chosenRoom = 5; }
-				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 12) { players[playerIndex].location = chosenRoom = 5; }
-				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 8; }
-				else if (players[playerIndex].getmapX() == 9 && players[playerIndex].getmapY() == 20) { players[playerIndex].location = chosenRoom = 7; }
+				if (players[playerIndex].getmapX() == 2 && players[playerIndex].getmapY() == 17) { players[playerIndex].location = chosenRoom = STUDY; }
+				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 11) { players[playerIndex].location = chosenRoom = HALL; }
+				else if (players[playerIndex].getmapX() == 5 && players[playerIndex].getmapY() == 12) { players[playerIndex].location = chosenRoom = HALL; }
+				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = LOUNGE; }
+				else if (players[playerIndex].getmapX() == 9 && players[playerIndex].getmapY() == 20) { players[playerIndex].location = chosenRoom = LIBRARY; }
 				Update();
 			}
 		}
 		if (wParam == VK_RIGHT && !players[playerIndex].location) {
-			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
+			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setX(players[playerIndex].getmapX() + 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 2)
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX() + 2)
 				+ players[playerIndex].getmapY() + 1] == 'E') {
 				players[playerIndex].setX(players[playerIndex].getmapX() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 13 && players[playerIndex].getmapY() == 22) { players[playerIndex].location = chosenRoom = 2; }
-				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = 1; }
-				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 1; }
-				else if (players[playerIndex].getmapX() == 10 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 4; }
-				else if (players[playerIndex].getmapX() == 21 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 3; }
-				else if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 4) { players[playerIndex].location = chosenRoom = 6; }
+				if (players[playerIndex].getmapX() == 13 && players[playerIndex].getmapY() == 22) { players[playerIndex].location = chosenRoom = BILLIARD; }
+				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = BALL; }
+				else if (players[playerIndex].getmapX() == 18 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = BALL; }
+				else if (players[playerIndex].getmapX() == 10 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = DINING; }
+				else if (players[playerIndex].getmapX() == 21 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = CONSERVATORY; }
+				else if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 4) { players[playerIndex].location = chosenRoom = KITCHEN; }
 				Update();
 			}
 		}
 		if (wParam == VK_UP && !players[playerIndex].location && (players[playerIndex].getX() != 155 || players[playerIndex].getY() != 203)) {
-			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
+			if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'O') {
 				players[playerIndex].setNumberOfMoves(players[playerIndex].getNumberOfMoves() - 1);
 				players[playerIndex].setY(players[playerIndex].getmapY() - 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX()
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX()
 				+ 1) + players[playerIndex].getmapY()] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() - 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = 1; }
-				else if (players[playerIndex].getmapX() == 12 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = 4; }
-				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 13) { players[playerIndex].location = chosenRoom = 5; }
+				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 14) { players[playerIndex].location = chosenRoom = BALL; }
+				else if (players[playerIndex].getmapX() == 12 && players[playerIndex].getmapY() == 6) { players[playerIndex].location = chosenRoom = DINING; }
+				else if (players[playerIndex].getmapX() == 4 && players[playerIndex].getmapY() == 13) { players[playerIndex].location = chosenRoom = HALL; }
 				Update();
 			}
 		}
@@ -499,20 +505,21 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setY(players[playerIndex].getmapY() + 1);
 				nextPlayer();
 				Update();
-			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[26 * (players[playerIndex].getmapX() + 1)
+			}else if (players[playerIndex].getNumberOfMoves() && players[playerIndex].map[mapHeight * (players[playerIndex].getmapX() + 1)
 				+ players[playerIndex].getmapY() + 2] == 'E') {
 				players[playerIndex].setY(players[playerIndex].getmapY() + 2);//replace with middle of room
 				players[playerIndex].setNumberOfMoves(0);
-				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = 1; }
-				else if (players[playerIndex].getmapX() == 15 && players[playerIndex].getmapY() == 19) { players[playerIndex].location = chosenRoom = 2; }
-				else if (players[playerIndex].getmapX() == 8 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = 7; }
+				if (players[playerIndex].getmapX() == 19 && players[playerIndex].getmapY() == 9) { players[playerIndex].location = chosenRoom = BALL; }
+				else if (players[playerIndex].getmapX() == 15 && players[playerIndex].getmapY() == 19) { players[playerIndex].location = chosenRoom = BILLIARD; }
+				else if (players[playerIndex].getmapX() == 8 && players[playerIndex].getmapY() == 18) { players[playerIndex].location = chosenRoom = LIBRARY; }
 				Update();
 			}
 		}
 		return 0;
-	case WM_LBUTTONDOWN: // Handles mouse input
-		switch (players[playerIndex].location) {
-		case 1:// ballroom
+	// Handles mouse input when going in secret passages. Hardcoded values are map locations
+	case WM_LBUTTONDOWN:
+		switch (players[playerIndex].location) {// Also moves players out of rooms to corresponding spaces
+		case BALL:
 			if (GET_X_LPARAM(lParam) > 477 && GET_Y_LPARAM(lParam) > 203 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 226 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -532,7 +539,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 			Update();
 			break;
-		case 2:// billiard room
+		case BILLIARD:
 			if (GET_X_LPARAM(lParam) > 385 && GET_Y_LPARAM(lParam) > 433 && GET_X_LPARAM(lParam)
 				< 408 && GET_Y_LPARAM(lParam) < 456 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -544,7 +551,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 			Update();
 			break;
-		case 3:// conservatory
+		case CONSERVATORY:
 			if (GET_X_LPARAM(lParam) > 475 && GET_Y_LPARAM(lParam) > 455 && GET_X_LPARAM(lParam)
 				< 500 && GET_Y_LPARAM(lParam) < 470 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -553,11 +560,11 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setmapX(132);
 				players[playerIndex].setmapY(180);
 				players[playerIndex].setNumberOfMoves(0);
-				players[playerIndex].location = chosenRoom = 8;
+				players[playerIndex].location = chosenRoom = LOUNGE;
 			}
 			Update();
 			break;
-		case 4: // dining room
+		case DINING:
 			if (GET_X_LPARAM(lParam) > 315 && GET_Y_LPARAM(lParam) > 225 && GET_X_LPARAM(lParam)
 				< 340 && GET_Y_LPARAM(lParam) < 260 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -569,7 +576,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 			Update();
 			break;
-		case 5:// hall
+		case HALL:
 			if (GET_X_LPARAM(lParam) > 130 && GET_Y_LPARAM(lParam) > 385 && GET_X_LPARAM(lParam)
 				< 160 && GET_Y_LPARAM(lParam) < 420 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -581,7 +588,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 			Update();
 			break;
-		case 6:// kitchen
+		case KITCHEN:
 			if (GET_X_LPARAM(lParam) > 430 && GET_Y_LPARAM(lParam) > 130 && GET_X_LPARAM(lParam)
 				< 465 && GET_Y_LPARAM(lParam) < 165 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -590,11 +597,11 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setmapX(86);
 				players[playerIndex].setmapY(433);
 				players[playerIndex].setNumberOfMoves(0);
-				players[playerIndex].location = chosenRoom = 9;
+				players[playerIndex].location = chosenRoom = STUDY;
 			}
 			Update();
 			break;
-		case 7:// library
+		case LIBRARY:
 			if (GET_X_LPARAM(lParam) > 292 && GET_Y_LPARAM(lParam) > 501 && GET_X_LPARAM(lParam)
 				< 316 && GET_Y_LPARAM(lParam) < 526 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -606,7 +613,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 			}
 			Update();
 			break;
-		case 8:// lounge
+		case LOUNGE:
 			if (GET_X_LPARAM(lParam) > 175 && GET_Y_LPARAM(lParam) > 175 && GET_X_LPARAM(lParam)
 				< 210 && GET_Y_LPARAM(lParam) < 210 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -615,11 +622,11 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setmapX(523);
 				players[playerIndex].setmapY(456);
 				players[playerIndex].setNumberOfMoves(0);
-				players[playerIndex].location = chosenRoom = 3;
+				players[playerIndex].location = chosenRoom = CONSERVATORY;
 			}
 			Update();
 			break;
-		case 9:// study
+		case STUDY:
 			if (GET_X_LPARAM(lParam) > 131 && GET_Y_LPARAM(lParam) > 430 && GET_X_LPARAM(lParam)
 				< 159 && GET_Y_LPARAM(lParam) < 460 && players[playerIndex].getNumberOfMoves()) {
 				gotoMouse(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
@@ -628,7 +635,7 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam) {// H
 				players[playerIndex].setmapX(477);
 				players[playerIndex].setmapY(134);
 				players[playerIndex].setNumberOfMoves(0);
-				players[playerIndex].location = chosenRoom = 6;
+				players[playerIndex].location = chosenRoom = KITCHEN;
 			}
 			Update();
 			break;

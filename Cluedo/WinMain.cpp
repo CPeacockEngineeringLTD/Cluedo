@@ -14,8 +14,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
 		if(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)){
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-		}else {		
-			//win->Update();//If constantly refreshing image
 		}
 	}
 	return 0;

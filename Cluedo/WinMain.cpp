@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include <memory>
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR, int nCmdShow) {
 	std::unique_ptr<MainWindow> win = std::make_unique<MainWindow>();

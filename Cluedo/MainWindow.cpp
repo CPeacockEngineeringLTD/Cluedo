@@ -240,7 +240,7 @@ bool MainWindow::suspectChecker(int& suspect , int& room , int& weapon, player p
 	return false;
 }
 
-void MainWindow::playerReset() { // puts players back in starting positions
+void MainWindow::playerReset() {// puts players back in starting positions
 	players[0].setX(5);
 	players[0].setY(23);//plum
 	players[1].setX(18);
@@ -255,7 +255,7 @@ void MainWindow::playerReset() { // puts players back in starting positions
 	players[5].setY(9);//white
 }
 
-void MainWindow::nextPlayer() {// When players' turn is finished
+void MainWindow::nextPlayer() {// When player's turn is finished
 	if (!(players[playerIndex].getNumberOfMoves())) {
 		players[playerIndex].rolled = false;
 		playerIndex++;
@@ -302,7 +302,7 @@ void MainWindow::begin() {// executed at the start of game
 		unsigned num = std::chrono::system_clock::now().time_since_epoch().count();
 		std::shuffle(cards.begin(), cards.end(), std::default_random_engine(num));
 		std::wofstream myfile;
-		// add the randomly selected cards tp the players sheets
+		// add the randomly selected cards to the players sheets
 		distributeCards(cards, cardsPerPlayer, "player1.txt");
 		distributeCards(cards, cardsPerPlayer, "player2.txt");
 		if (!cards.empty())distributeCards(cards, cardsPerPlayer, "player3.txt");
